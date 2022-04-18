@@ -21,3 +21,5 @@ def get_recommendations(contentId):
     sim_scores = sim_scores[1:11]
     article_indices = [i[0] for i in sim_scores]
     return df[["url", "title", "text", "lang", "total_events"]].iloc[article_indices]
+
+# print(get_recommendations(-4029704725707465084))

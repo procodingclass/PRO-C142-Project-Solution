@@ -4,11 +4,12 @@ from demographic_filtering import output
 from content_filtering import get_recommendations
 
 articles_data = pd.read_csv('articles.csv')
-all_articles = articles_data[['url' , 'title' , 'text' , 'lang' , 'total_events']]
-liked_articles = []
-not_liked_articles = []
+all_articles = articles_data[['url' , 'title' , 'text' , 'lang' , 'total_events', 'contentId']]
 
 app = Flask(__name__)
+
+liked_articles = []
+not_liked_articles = []
 
 def assign_val():
     m_data = {
@@ -16,7 +17,8 @@ def assign_val():
         "title": all_articles.iloc[0,1],
         "text": all_articles.iloc[0,2] or "N/A",
         "lang": all_articles.iloc[0,3],
-        "total_events": all_articles.iloc[0,4]/2
+        "total_events": str(all_articles.iloc[0,4]),
+        "contentId" : str(all_articles.iloc[0,5])
     }
     return m_data
 
@@ -69,34 +71,34 @@ def popular_articles():
         "status": "success"
     })
 
-# @app.route("/recommended-articles")
-# def recommend_articles():
-#     global liked_articles
-#     col_names=['url', 'title', 'text', 'lang', 'total_events']
-#     all_recommended = pd.DataFrame(columns=col_names)
+@app.route("/recommended-articles")
+def recommend_articles():
+    global liked_articles
+    col_names=['url', 'title', 'text', 'lang', 'total_events']
+    all_recommended = pd.DataFrame(columns=col_names)
     
-#     for article in liked_articles:
-#         output = get_recommendations(article["title"])
-#         all_recommended=all_recommended.append(output)
+    for article in liked_articles:
+        output = get_recommendations(article["contentId"])
+        all_recommended=all_recommended.append(output)
 
-#     all_recommended.drop_duplicates(subset=["title"],inplace=True)
+    all_recommended.drop_duplicates(subset=["title"],inplace=True)
 
-#     recommended_data = []
+    recommended_data = []
 
-#     for index, row in all_recommended.iterrows():
-#         _d = {
-#             "url": row['url'],
-#             "title": row['title'],
-#             "text": row['text'],
-#             "lang": row['lang'],
-#             "total_events": row['total_events']
-#         }
-#         recommended_data.append(_d)
+    for index, row in all_recommended.iterrows():
+        _d = {
+            "url": row['url'],
+            "title": row['title'],
+            "text": row['text'],
+            "lang": row['lang'],
+            "total_events": row['total_events']
+        }
+        recommended_data.append(_d)
 
-#     return jsonify({
-#         "data":recommended_data,
-#         "status": "success"
-#     })
+    return jsonify({
+        "data":recommended_data,
+        "status": "success"
+    })
 
 
 if __name__ == "__main__":
